@@ -60,6 +60,7 @@ fabric.properties
 
 *.iml
 app/*.iml
+doc/*.iml
 
 
 ### Eclipse template

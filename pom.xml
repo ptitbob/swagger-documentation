@@ -8,7 +8,6 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>1.5.8.RELEASE</version>
-    <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>org.shipstone.sandbox</groupId>
@@ -21,6 +20,8 @@
   </modules>
 
   <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <springfox-swagger2.version>2.6.1</springfox-swagger2.version>
   </properties>
 
@@ -34,4 +35,15 @@
     </dependencies>
   </dependencyManagement>
 
+  <profiles>
+    <profile>
+      <id>documentation</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <modules>
+        <module>doc</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>

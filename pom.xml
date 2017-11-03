@@ -8,5 +8,18 @@
   <artifactId>swagger-documentation</artifactId>
   <version>1.0-SNAPSHOT</version>
 
+  <properties>
+    <springfox-swagger2.version>2.6.1</springfox-swagger2.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-swagger2</artifactId>
+        <version>${springfox-swagger2.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>

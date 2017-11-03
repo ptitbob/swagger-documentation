@@ -1,12 +1,12 @@
-#Génération de la documantation SWAGGER automatiquement
+# Génération de la documantation SWAGGER automatiquement
 
-##Step 0
+## Step 0
 
 Création du module de l'API REST, avec comme "seule" dependance swagger celle qui permet l'utilisation des annotation de documentation de l'API par SWAGGER.
 
 Dans notre cas : le module app.
 
-##Step 1
+## Step 1
 
 Création qui servira a proprement parler de la génération du fichier descriptif Swagger.
 

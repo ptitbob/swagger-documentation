@@ -96,6 +96,34 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <!-- Profile propre aux tests d'intégration -->
+      <id>test-integration</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <io.springfox.staticdocs.outputDir>${swagger.output.dir}</io.springfox.staticdocs.outputDir>
+                <io.springfox.staticdocs.snippetsOutputDir>${swagger.snippetOutput.dir}</io.springfox.staticdocs.snippetsOutputDir>
+              </systemPropertyVariables>
+              <includes>
+                <!-- Pattern des classes de TU et tests intégrations -->
+                <include>**/*Test</include>
+                <include>**/*Tests</include>
+                <include>**/*TestIT</include>
+                <include>**/*TestsIT</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
 </project>

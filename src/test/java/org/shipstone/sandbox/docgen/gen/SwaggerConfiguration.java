@@ -1,4 +1,4 @@
-package org.shipstone.sandbox.docgen.configuration;
+package org.shipstone.sandbox.docgen.gen;
 
 import org.shipstone.sandbox.docgen.DocgenApplication;
 import org.springframework.context.annotation.Bean;

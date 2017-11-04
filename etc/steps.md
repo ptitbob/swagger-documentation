@@ -4,98 +4,81 @@
 
 Création du module de l'API REST, avec comme "seule" dependance swagger celle qui permet l'utilisation des annotation de documentation de l'API par SWAGGER.
 
-Dans notre cas : le module app.
-
-## Step 1
-
-Création qui servira a proprement parler de la génération du fichier descriptif Swagger.
-
-Dans notre cas : le module doc.
-
-pour cela, il faut qu'il invoque une dépendance vers le module applicatif : 
+déclaration de la dependance SWAGGER (`springfox-swagger2`)
 
 ```xml
-<dependency>
-  <groupId>org.shipstone.sandbox</groupId>
-  <artifactId>swagger-documentation-app</artifactId>
-  <version>${project.version}</version>
-</dependency>
+  <properties>
+    ...
+    <!-- Version de la dependance Springfox -->
+    <springfox-swagger2.version>2.7.0</springfox-swagger2.version>
+    ...
+  </properties>
+
+```
+```xml
+    <!-- SWAGGER -->
+    <dependency>
+      <!-- dependance permettant l'utilisation des anotation SWAGGER et la génération du descripttif -->
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger2</artifactId>
+      <version>${springfox-swagger2.version}</version>
+    </dependency>
+    <!-- SWAGGER -->
 ```
 
-La configuration se fera au niveau des tests.
+*Et evidement j'ai utilisé les annotations mise à ma disposition pour documenter mon endpoint :*
 
-> A Noter : ***Il est important que le package de base soit identique à celui de l'application***
+```java
+...
+@Api
+public class HelloEndpoint {
 
-On créer tout d'abord la classe de configuration pour l'exposition `SWAGGER` :
+  @ApiOperation(
+      "Une API polie"
+  )
+  @GetMapping
+  public String sayHello(
+...
+``` 
 
+## Step 1 - Génération du fichier descriptif SWAGGER
+
+> *Pour cela je vais utiliser la phase de test de mannière un peu particulière*
+>
+> Toutes les sources concernant cette génération se trouveront dans le repertoire de test `scr/test`.
+>
+> Et je vais crééer une configuration maven particulière afin de permettre la génération.
+
+Dans un premier temps je créer la configuration spring afin de permettre d'exposer le endpoint swagger (`SwaggerConfiguration`) :
 ```java
 @Configuration
 @EnableSwagger2
-public class DocumentationConfiguration {
-```
+public class SwaggerConfiguration {
 
-puis nous y delcarons la méthode de génération du `Docket` pour la configuration `SWAGGER` : 
+  @Bean
+  public Docket restApi() {
+    return new Docket(DocumentationType.SWAGGER_2)
+        .apiInfo(getApiInformation())
+        .select()
+        .apis(RequestHandlerSelectors.basePackage(DocgenApplication.class.getPackage().getName()))
+        .paths(PathSelectors.any())
+        .build();
+  }
 
-```java
-@Bean
-public Docket restApi() {
-  return new Docket(DocumentationType.SWAGGER_2)
-    .apiInfo(getApiInformation())
-    .select()
-    .apis(RequestHandlerSelectors.basePackage(getClass().getPackage().getName()))
-    .paths(PathSelectors.any())
-    .build();
+  private ApiInfo getApiInformation() {
+    return new ApiInfoBuilder()
+        .title("Demo gen Doc")
+        .description("Demonstration de génération de doc")
+        .build();
+  }
 }
 ```
 
-La méthode permettant de générer les informations globale de l'API est très simple (pour notre exemple :) ) : 
+Cette manupilation a pour effet de rendre disponible le endpoint SWAGGER à cette URL : `/v2/api-docs`.
+
+Maintenant il s'agit d'interroger ce endpoint afin d'enregistrer le descriptif.
+Je vais le faire à travers une classe de test (`GenSwaggerFileAndDoc`), et plus particulièrement via cette méthode : 
 ```java
-private ApiInfo getApiInformation() {
-  return new ApiInfoBuilder()
-    .title("Demo gen Doc")
-    .description("Demonstration de génération de doc")
-    .build();
-}
-```
-
-*Maintenant que l'exposition SWAGGER est configuré, il faut maintenant passer à la génération du fichier descriptif*
-
-Mais tout d'abord, un peu de configuration via le fichier projet (fichier `pom.xml`) : 
-
-```xml
-<properties>
-<!-- Repertoire de sortie pour le fichier swagger généré -->
-<swagger.output.dir>${project.build.directory}/swagger</swagger.output.dir>
-<!-- repertoire des snippet de code -->
-<swagger.snippetOutput.dir>${project.build.directory}/asciidoc/snippets</swagger.snippetOutput.dir>
-</properties>
-```
-
-J'y defini les repertoires de sorties pour le fichier descriptif `SWAGGER` et les snippets. Repertoires qui seront affecté comme propriétés système par le plugin surfire : 
-```xml
-  <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-surefire-plugin</artifactId>
-    <configuration>
-      <systemPropertyVariables>
-        <io.springfox.staticdocs.outputDir>${swagger.output.dir}</io.springfox.staticdocs.outputDir>
-        <io.springfox.staticdocs.snippetsOutputDir>${swagger.snippetOutput.dir}</io.springfox.staticdocs.snippetsOutputDir>
-      </systemPropertyVariables>
-    </configuration>
-  </plugin>
-```
-
-La génération proprement dite est très simple et s'appui sur le systeme de Mock de SpringMvc : 
-
-```java
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-public class GenDocByTest {
-
-  @Autowired
-  private MockMvc mockMvc;
-
   @Test
   public void generate() throws Exception {
     MvcResult result = mockMvc.perform(
@@ -105,20 +88,60 @@ public class GenDocByTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andReturn();
     String outputDir = System.getProperty("io.springfox.staticdocs.outputDir");
-    Files.createDirectories(Paths.get(outputDir));
     try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputDir, "swagger.json"), StandardCharsets.UTF_8)){
       writer.write(result.getResponse().getContentAsString());
     }
   }
-
-}
 ```
 
-Un petit `mvn clean test -P documentation` sur le projet racine et dans le repertoire de sortie du module `doc` le fichier swagger est généré (dans notre cas : `doc/target/swagger`).
+Cette méthode utilise le framework de test Spring pour exposer un serveur sur un port aléatoire afin d'exposer l'API générée.
+Une fois le serveur lancé, nous interrogeons cette URI afin d'y recupérer le descriptif SWAGGER au format JSON et de l'enregistrer dans un endroit spécifique.
 
-Et c'est tout pour le premier step.
+Cependant, si vous faites un `mvn test`, vous ne verrez pas le fichier `swagger.json`.
+C'est normal car springboot a configurer le plugin `maven-surefire-plugin` pour ne prendre en compte que les classes ayant comme pattern de nom `**/*test` et `**/*tests`.
 
-> J'ai inclus le module de doc dans un profil particulier, car le clean install global plante - je n'arrive pas à comprendre pourquoi car le test global passe sans problème...
-> 
-> Va comprendre Charles !!!
+C'est bien pratique, et cela va me permettre d'isoler ma génération de document dans un profil maven.
+Je déclare donc un profil (non actif):
+```xml
+...
+    <profile>
+      <!-- Profile propre à la génération de la doc -->
+      <id>documentation</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+...
+``` 
+Puis je déclare dans la section de build du profil ma configuration du plugin `maven-surefire-plugin` :
 
+```xml
+  <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <configuration>
+      <systemPropertyVariables>
+        <io.springfox.staticdocs.outputDir>${swagger.output.dir}</io.springfox.staticdocs.outputDir>
+        <io.springfox.staticdocs.snippetsOutputDir>${swagger.snippetOutput.dir}</io.springfox.staticdocs.snippetsOutputDir>
+      </systemPropertyVariables>
+      <includes>
+        <!-- Inclusion que de la classe de génération de descritif Swagger -->
+        <include>**/GenSwaggerFileAndDoc</include>
+      </includes>
+    </configuration>
+  </plugin>
+```
+
+Et je le configure :
+
+* Je n'inclus que ma classe de génération de fichier descriptif (pas la peine de jouer tous les tests, je ne veux que la documentation).
+* J'y déclare aussi mes repertoire de sortie qui seront injecté comme propriété système, ce qui me permettra de les recupérer via `System.getProperty("io.springfox.staticdocs.outputDir")`.
+
+Et maintenant, je peux tranquillement faire `mvn clean install -P documentation` et regarder dans mon repertoire target la création de mon fichier `swagger.json`.
+
+> *J'en ai aussi profité pour mettre en place un profil pour jouer mes tests d'intégrations* :)
+>
+> Tests qui peuvent être joué via `mvn clean install -P test-integration`
+
+
+
+ 

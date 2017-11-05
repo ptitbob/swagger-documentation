@@ -35,6 +35,7 @@ public class SwaggerConfiguration {
     return new ApiInfoBuilder()
         .title("Demo gen Doc")
         .description("Demonstration de génération de doc")
+        // On peut aussi y inclure des information issu du build (version, timestamp, etc...)
         .build();
   }
 }

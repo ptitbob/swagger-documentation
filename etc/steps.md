@@ -150,3 +150,46 @@ Et maintenant, je peux tranquillement faire `mvn clean install -P documentation`
 >
 > Tests qui peuvent être joué via `mvn clean install -P test-integration`
 
+## Step 2 - Génération de la documentation générale
+
+La documentation du projet est écrite suivant le format asciidoc ([Référence Asciidoc](http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/)),
+ce qui me permet de gérer la documentation du projet comme des sources (gestion de version etc...). 
+
+> *dixit* [Wikipédia](https://fr.wikipedia.org/wiki/Asciidoc) : Asciidoc est un langage de balisage léger.
+> Le texte du fichier source forme déjà un document lisible. Le programme de conversion asciidoc permet de transformer le document source au format XHTML, DocBook ou HTML.
+
+Maintenant, je faire en sorte, toujours avec le profil documentation, de générer la doc attaché au projet.
+Pour cela j'utilise le plugin `asciidoctor-maven-plugin`.
+
+```xml
+  <plugin>
+    <groupId>org.asciidoctor</groupId>
+    <artifactId>asciidoctor-maven-plugin</artifactId>
+    <version>1.5.6</version>
+    ...
+```
+
+Et comme je veux générer la documentation au format HTML & PDF, je dois inclure quelques dépendances : 
+
+```xml
+  <dependency>
+    <groupId>org.asciidoctor</groupId>
+    <artifactId>asciidoctorj-pdf</artifactId>
+    <version>1.5.0-alpha.16</version>
+  </dependency>
+  <dependency>
+    <groupId>org.jruby</groupId>
+    <artifactId>jruby-complete</artifactId>
+    <version>9.1.13.0</version>
+  </dependency>
+```
+
+S'ensuit quelques lignes de configuration sans grandes difficultés que je vous laisse découvriri en parcourrant le fichier projet.
+
+Ensuite, afin de générer les 2 types de sortie, il faut décrire deux processus d'execution, un pour la sortie HTML et un pour la sortie PDF 
+(*chaque execution ne peut prendre en compte qu'un seul format*).
+
+Pour la génération, proceder comme précédement : `mvn clean install -P documentation`.
+Le resultat sera disponible sous le repertoire `target/documentation`.
+
+

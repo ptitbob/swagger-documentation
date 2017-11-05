@@ -121,6 +121,7 @@
             <configuration>
               <sourceDirectory>${asciidoctor.input.directory}</sourceDirectory>
               <sourceDocumentName>index.adoc</sourceDocumentName>
+              <sourceHighlighter>coderay</sourceHighlighter>
               <attributes>
                 <doctype>book</doctype>
                 <toc>left</toc>

@@ -52,12 +52,7 @@ public class GenSwaggerFileAndDoc {
         .andReturn();
     String outputDir = System.getProperty("io.springfox.staticdocs.outputDir");
     Files.createDirectories(Paths.get(outputDir));
-    System.out.println("");
-    System.out.println("");
-    System.out.println(result.getResponse().getContentAsString());
-    System.out.println("");
-    System.out.println("");
-    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputDir, "swagger.json"), StandardCharsets.UTF_8)){
+    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputDir, System.getProperty("io.springfox.staticdocs.outputFile")), StandardCharsets.UTF_8)){
       writer.write(result.getResponse().getContentAsString());
     }
   }

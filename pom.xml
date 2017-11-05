@@ -75,6 +75,7 @@
       <properties>
         <!-- Repertoire de sortie pour le fichier swagger généré -->
         <swagger.output.dir>${project.build.directory}/swagger</swagger.output.dir>
+        <swagger.output.file>${project.artifactId}-swagger.json</swagger.output.file>
         <!-- repertoire des snippet de code -->
         <swagger.snippetOutput.dir>${project.build.directory}/asciidoc/snippets</swagger.snippetOutput.dir>
         <!-- Configuration de la générationd de la documentation écrite en asciidoc -->
@@ -91,6 +92,7 @@
             <configuration>
               <systemPropertyVariables>
                 <io.springfox.staticdocs.outputDir>${swagger.output.dir}</io.springfox.staticdocs.outputDir>
+                <io.springfox.staticdocs.outputFile>${swagger.output.file}</io.springfox.staticdocs.outputFile>
                 <io.springfox.staticdocs.snippetsOutputDir>${swagger.snippetOutput.dir}</io.springfox.staticdocs.snippetsOutputDir>
               </systemPropertyVariables>
               <includes>
@@ -174,10 +176,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <systemPropertyVariables>
-                <io.springfox.staticdocs.outputDir>${swagger.output.dir}</io.springfox.staticdocs.outputDir>
-                <io.springfox.staticdocs.snippetsOutputDir>${swagger.snippetOutput.dir}</io.springfox.staticdocs.snippetsOutputDir>
-              </systemPropertyVariables>
               <includes>
                 <!-- Pattern des classes de TU et tests intégrations -->
                 <include>**/*Test</include>

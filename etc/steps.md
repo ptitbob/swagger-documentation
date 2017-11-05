@@ -1,5 +1,7 @@
 # Génération de la documantation SWAGGER automatiquement
 
+Le but de la manipulation est de généré automatiquement une documentation basé sur un descriptif SWAGGER (OpenAPI) généré depuis les annotations du code.
+
 ## Step 0
 
 Création du module de l'API REST, avec comme "seule" dependance swagger celle qui permet l'utilisation des annotation de documentation de l'API par SWAGGER.

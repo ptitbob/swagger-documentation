@@ -192,4 +192,108 @@ Ensuite, afin de générer les 2 types de sortie, il faut décrire deux processu
 Pour la génération, proceder comme précédement : `mvn clean install -P documentation`.
 Le resultat sera disponible sous le repertoire `target/documentation`.
 
+## Step 3 - Génération de la documentation basé sur le fichier descriptif
 
+> Tous mes modifications, comme pour l'étape 1 ne concerne que le profil `documentation`.
+
+Maintenant je vais baser la documentation de l'API REST à partir du fichier swagger généré à l'étape 1.
+Pour cela, j'utilise le plugin `swagger2markup-maven-plugin`,
+mais comme celui-ci n'existe pas dans le repository maven de base, je déclare ma dépendance vers d'autres repository de plugins :
+
+```xml
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jcenter-snapshots</id>
+      <name>jcenter</name>
+      <url>http://oss.jfrog.org/artifactory/oss-snapshot-local/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>jcenter-releases</id>
+      <name>jcenter</name>
+      <url>http://jcenter.bintray.com</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+```  
+
+J'en profite pour ajouter deux propriétés :
+
+```xml
+<swagger2markup.version>1.2.0</swagger2markup.version>
+<swagger.input>${project.build.directory}/swagger/${swagger.output.file}</swagger.input>
+```
+Qui sont la version de mon plugin et la localisation du fichier descriptif SWAGGER précédement généré.
+
+Ensuite je déclare **avant le plugin de traitement asciidoc** mon plugin et sa configuration en précisant qu'il doit s'executer pendant la phase de test.
+
+Pour la génération, je créer un squelette de fichier asciidoc (`src/main/api-rest/index.doc`) :
+```adoc
+include::{generated}/overview.adoc[]
+include::manual-content-01.adoc[]
+include::{generated}/paths.adoc[]
+include::{generated}/security.adoc[]
+include::{generated}/definitions.adoc[]
+include::manual-content-02.adoc[]
+```
+Ou j'inclus les doc générées via la balise `{generated}` et qui sont au nombre de 4 : 
+
+* `overview.adoc` : le descriptif de l'API basé sur les informations de l'API qui ont été déclaré via la classe de généréation du fichier descriptif
+* `paths.adoc` : les endpoints (méthode, path, paramètres, etc.).
+* `security.adoc` : les informations lié à la sécurisation de l'API REST.
+* `definitions.adoc` : Les définitions des ressources de l'API REST.
+
+J'y inclus aussi 2 fichiers non générés afin d'ajouter des informations à la documentations, cela peut s'averer pratique (licences, contexte fonctionnel, etc.).
+
+Il en me reste plus qu'a configurer la génération de la documentation via les fichiers asciidoc en configuration l'execution de 4 steps du plugin asccidoc, pour chacun des fichiers et des formats de sortie : 
+
+```xml
+  <execution>
+    <id>technical-html</id>
+    ...
+    <configuration>
+      <sourceDirectory>${asciidoctor.input.directory}/technical</sourceDirectory>
+      ...
+      <backend>html5</backend>
+      <outputDirectory>${asciidoctor.html.output.directory}</outputDirectory>
+      <outputFile>${asciidoctor.html.output.directory}/technical-documentation.html</outputFile>
+    </configuration>
+  </execution>
+  <execution>
+    <id>api-rest-html</id>
+    <configuration>
+      <sourceDirectory>${asciidoctor.input.directory}/api-rest</sourceDirectory>
+      ...
+      <backend>html5</backend>
+      <outputDirectory>${asciidoctor.html.output.directory}</outputDirectory>
+      <outputFile>${asciidoctor.html.output.directory}/api-documentation.html</outputFile>
+    </configuration>
+  </execution>
+  <execution>
+    <id>technical-pdf</id>
+    ...
+    <configuration>
+      <sourceDirectory>${asciidoctor.input.directory}/technical</sourceDirectory>
+      ...
+      <backend>pdf</backend>
+      <outputDirectory>${asciidoctor.pdf.output.directory}</outputDirectory>
+      <outputFile>${asciidoctor.pdf.output.directory}/technical-documentation.pdf</outputFile>
+    </configuration>
+  </execution>
+  <execution>
+    <id>api-rest-pdf</id>
+    ...
+    <configuration>
+      <sourceDirectory>${asciidoctor.input.directory}/api-rest</sourceDirectory>
+      ...
+      <backend>pdf</backend>
+      <outputDirectory>${asciidoctor.pdf.output.directory}</outputDirectory>
+      <outputFile>${asciidoctor.pdf.output.directory}/api-documentation.pdf</outputFile>
+    </configuration>
+  </execution>
+```
+
+Et voilà le tour est joué, vous avez une belle documentation, que vous pourrez deployer à l'envi selon vos besoin et ceux de votre projet !
+
+*Have fun*

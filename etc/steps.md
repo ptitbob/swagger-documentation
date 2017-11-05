@@ -110,6 +110,12 @@ Je déclare donc un profil (non actif):
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
+      <properties>
+        <!-- Repertoire de sortie pour le fichier swagger généré -->
+        <swagger.output.dir>${project.build.directory}/swagger</swagger.output.dir>
+        <swagger.output.file>${project.artifactId}-swagger.json</swagger.output.file>
+        ...
+      </properties>
 ...
 ``` 
 Puis je déclare dans la section de build du profil ma configuration du plugin `maven-surefire-plugin` :
@@ -121,6 +127,7 @@ Puis je déclare dans la section de build du profil ma configuration du plugin `
     <configuration>
       <systemPropertyVariables>
         <io.springfox.staticdocs.outputDir>${swagger.output.dir}</io.springfox.staticdocs.outputDir>
+        <io.springfox.staticdocs.outputFile>${swagger.output.file}</io.springfox.staticdocs.outputFile>
         <io.springfox.staticdocs.snippetsOutputDir>${swagger.snippetOutput.dir}</io.springfox.staticdocs.snippetsOutputDir>
       </systemPropertyVariables>
       <includes>
@@ -135,6 +142,7 @@ Et je le configure :
 
 * Je n'inclus que ma classe de génération de fichier descriptif (pas la peine de jouer tous les tests, je ne veux que la documentation).
 * J'y déclare aussi mes repertoire de sortie qui seront injecté comme propriété système, ce qui me permettra de les recupérer via `System.getProperty("io.springfox.staticdocs.outputDir")`.
+* Et pour finir, je déclare le nom du fichier de sortie afin qu'il porte le nom de l'artifact (`${project.artifactId}-swagger.json`) et qu'il soit injecté de la même manière que le repertoire.
 
 Et maintenant, je peux tranquillement faire `mvn clean install -P documentation` et regarder dans mon repertoire target la création de mon fichier `swagger.json`.
 
@@ -142,6 +150,3 @@ Et maintenant, je peux tranquillement faire `mvn clean install -P documentation`
 >
 > Tests qui peuvent être joué via `mvn clean install -P test-integration`
 
-
-
- 

@@ -1,3 +1,8 @@
+= Génération de documentation
+
+:revnumber: {version}
+:revdate: {localdate}
+
 include::introduction.adoc[]
 
 include::chapter-01.adoc[]

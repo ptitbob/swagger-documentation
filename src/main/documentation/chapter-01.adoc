@@ -1,4 +1,4 @@
-= Chapitre 1
+== Chapitre 1
 
 Il s'agit de faire un chapitre d'exemple pour illustrer la possibilité de gérer à la fois du contenu généré et rédigé.
 

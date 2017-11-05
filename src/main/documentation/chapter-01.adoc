@@ -1,0 +1,16 @@
+= Chapitre 1
+
+Il s'agit de faire un chapitre d'exemple pour illustrer la possibilité de gérer à la fois du contenu généré et rédigé.
+
+Avec par exemple du code exemple :
+
+[source,java]
+----
+@SpringBootApplication
+public class DocgenApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DocgenApplication.class, args);
+	}
+}
+----

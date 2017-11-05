@@ -22,6 +22,9 @@ public class SwaggerConfiguration {
   public Docket restApi() {
     return new Docket(DocumentationType.SWAGGER_2)
         .apiInfo(getApiInformation())
+        // On fixe le host ou l'API sera disponible,
+        // il est possible via l'activation de profil additionnel de le fixer selon vos envirronement de deploiement.
+        .host("http://shipstone.org/demo")
         .select()
         .apis(RequestHandlerSelectors.basePackage(DocgenApplication.class.getPackage().getName()))
         .paths(PathSelectors.any())

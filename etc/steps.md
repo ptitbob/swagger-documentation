@@ -1,4 +1,4 @@
-# Génération de la documantation SWAGGER automatiquement
+# Génération de la documentation SWAGGER automatiquement
 
 Le but de la manipulation est de généré automatiquement une documentation basé sur un descriptif SWAGGER (OpenAPI) généré depuis les annotations du code.
 
